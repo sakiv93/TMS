@@ -13,7 +13,7 @@ def edge_stress_yy(x,y,shear_modulus,burgers_vector,poissons_ratio):
     stress_yy=D*y*(x**2-y**2)/(x**2+y**2)**2
     return stress_yy
 def edge_stress_zz(x,y,shear_modulus,burgers_vector,poissons_ratio):
-    stress_zz=poissons_ratio*edge_stress_xx(x,y,shear_modulus,burgers_vector,poissons_ratio)*edge_stress_yy(x,y,shear_modulus,burgers_vector,poissons_ratio)
+    stress_zz=poissons_ratio*(edge_stress_xx(x,y,shear_modulus,burgers_vector,poissons_ratio)+edge_stress_yy(x,y,shear_modulus,burgers_vector,poissons_ratio))
     return stress_zz
 shear_modulus=90e9 # Pa
 burgers_vector=0.25e-9 #m
@@ -38,18 +38,56 @@ yc=np.linspace(y_start+(dy/2),y_end-(dy/2),no_pixels_y)
 #create 2D co-ordinate array
 xv_2d,yv_2d=np.meshgrid(xv,yv)
 xc_2d,yc_2d=np.meshgrid(xc,yc)
-x0=10e-9
-y0=10e-9
+x0=50e-9
+y0=50e-9
+
+
 #get stress values for center points
-stress=edge_stress_xy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
-plt.pcolormesh(xv_2d,yv_2d,stress)
-im=plt.imshow(stress,origin='lower',extent=(x_start,x_end,y_start,y_end),aspect='equal',vmin=-0.1e9,cmap='RdBu')
-plt.colorbar();
+##stress=edge_stress_xy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+#plt.pcolormesh(xv_2d,yv_2d,stress)
+#fig,ax=plt.subplots(figsize=(15,10))  #to set figsize or zoom
+##im=plt.imshow(stress,origin='lower',extent=(x_start,x_end,y_start,y_end),aspect='equal',vmin=-0.1e9,cmap='RdBu')
+##plt.colorbar();
 #For lines display
-cs=plt.contour(xc_2d,yc_2d,stress,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+##cs=plt.contour(xc_2d,yc_2d,stress,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
 #For values display
-plt.clabel(cs, fmt='%1.1e'); 
-sigma_xx=edge_stress_xy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+##plt.clabel(cs, fmt='%1.1e'); 
+
+
+sigma_xx=edge_stress_xx(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+sigma_yy=edge_stress_yy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+sigma_zz=edge_stress_zz(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+sigma_xy=edge_stress_xy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+fig,ax=plt.subplots(nrows=2,ncols=3,figsize=(15,10))
+#Dictonories
+im_kwargs={'origin':'lower','extent':(x_start,x_end,y_start,y_end),'aspect':'equal','vmin':-0.1e9,'cmap':'YlOrRd_r'}
+ax[0][0].imshow(sigma_xx, **im_kwargs)
+cs=ax[0][0].contour(xc_2d,yc_2d,sigma_xx,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[0][0].clabel(cs, fmt='%1.1e'); 
+ax[0][1].imshow(sigma_yy, **im_kwargs)
+cs=ax[0][1].contour(xc_2d,yc_2d,sigma_yy,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[0][1].clabel(cs, fmt='%1.1e'); 
+ax[0][2].imshow(sigma_zz, **im_kwargs)
+cs=ax[0][2].contour(xc_2d,yc_2d,sigma_zz,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[0][2].clabel(cs, fmt='%1.1e'); 
+ax[1][0].imshow(sigma_xy, **im_kwargs)
+cs=ax[1][0].contour(xc_2d,yc_2d,sigma_xy,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[1][0].clabel(cs, fmt='%1.1e'); 
+
+
+fig,ax=plt.subplots(ncols=3,figsize=(5,3))
+sigma_xy_0=edge_stress_xy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
+sigma_xy_1=edge_stress_xy(xc_2d-x0,yc_2d-y0,shear_modulus,burgers_vector,poissons_ratio)
+ax[0].imshow(sigma_xy_0, **im_kwargs)
+cs=ax[0].contour(xc_2d,yc_2d,sigma_xy_0,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[0].clabel(cs, fmt='%1.1e');
+ax[1].imshow(sigma_xy_1, **im_kwargs)
+cs=ax[1].contour(xc_2d,yc_2d,sigma_xy_1,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[1].clabel(cs, fmt='%1.1e');
+ax[2].imshow(sigma_xy_0+sigma_xy_1, **im_kwargs)
+cs=ax[2].contour(xc_2d,yc_2d,sigma_xy_0+sigma_xy_1,levels=np.linspace(-0.1e9,0.1e9,11),cmap='gray_r')
+ax[2].clabel(cs, fmt='%1.1e');
+#sigma_xx=edge_stress_xy(xc_2d,yc_2d,shear_modulus,burgers_vector,poissons_ratio)
 ##fig,ax=plt.subplots(nrows=2,ncols=3,figsize=(15,10))
 #Dictonories
 ##im_kwargs={'origin':'lower','extent':(x_start,x_end,y_start,y_end),'aspect':'equal','vmin':-0.1e9,'cmap':'RdBu'}
