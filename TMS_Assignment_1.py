@@ -26,7 +26,7 @@ def get_internal_stress(x_coords,shear_modulus,poissons_ratio,burgers_vector):
 def velocity(burgers_vector,drag_coefficient,shear_stress):
     velocitys=np.array([])
     for i in range(len(shear_stress)):
-        velocity =(burgers_vector/drag_coefficient)*shear_stress[i]
+        velocity =(burgers_vector/drag_coefficient)*(shear_stress[i]+14150000)
         velocitys=np.append(velocitys,velocity)
     return velocitys
 
@@ -37,7 +37,7 @@ poissons_ratio=0.33
 burgers_vector=0.256e-9 #m
 drag_coefficient=1e-4 #Pa-s
 total_time=10e-9 #s
-number_steps=50
+number_steps=100
 delta_t=total_time/number_steps
 print('Time_step=',delta_t)
 
@@ -58,21 +58,23 @@ for i in range(number_steps):
     shear_stress=get_internal_stress(np.copy(final_position),shear_modulus,poissons_ratio,burgers_vector)
     #Here np.copy is used for call by value purpose in order to prevent function modifying outside variable
     #In internl stress calculation function my initial positions get swapped according to requirement.
+    ##print('shear_stress_in_loop:',shear_stress)
     tau=velocity(burgers_vector,drag_coefficient,shear_stress)
-    print('Tau value in Final position loop:',tau)
+    ##print('Tau value in Final position loop:',tau)
     #x1_new=x1_old+delta_t*tau
     final_position=final_position+delta_t*tau
     positions=np.append(positions,[final_position],axis=0)
     times=np.append(times,[(i+1)*delta_t],axis=0)
-    print('positions inside positions loop:',positions)
-    print('Final_positions in Final position loop:',final_position)
-    print('Time_steps in Final position loop',times)
-print(positions[3,0])
+    ##print('positions inside positions loop:',positions)
+    ##print('Final_positions in Final position loop:',final_position)
+    ##print('Time_steps in Final position loop',times)
+print(positions[-1,0])
 
 # To plot values of dislocation movement with time
 plt.plot(positions,times)
 plt.xlabel('positions [m]')
 plt.ylabel('times[s]')
+#plt.xlim(-2e-6,2e-6)
 plt.show()
 
 
