@@ -23,6 +23,7 @@ def get_internal_stress(x_coords,shear_modulus,poissons_ratio,burgers_vector):
     return stress
 
 #To find velocity as position changes
+#The value of shear stress is 14150000 for final posir=tion of left most Dislocation to be 2e-7
 def velocity(burgers_vector,drag_coefficient,shear_stress):
     velocitys=np.array([])
     for i in range(len(shear_stress)):
@@ -65,12 +66,15 @@ for i in range(number_steps):
     final_position=final_position+delta_t*tau
     positions=np.append(positions,[final_position],axis=0)
     times=np.append(times,[(i+1)*delta_t],axis=0)
+    #[round(elem,8) for elem in get_internal_stress(np.array([0,2,3.5,4]),20.,0.3,0.1)]
     ##print('positions inside positions loop:',positions)
     ##print('Final_positions in Final position loop:',final_position)
     ##print('Time_steps in Final position loop',times)
 print(positions[-1,0])
 
 # To plot values of dislocation movement with time
+positions_plot=[round(elem,4) for elem in positions]
+print('Rounded to 4 digits,positions:',positions)
 plt.plot(positions,times)
 plt.xlabel('positions [m]')
 plt.ylabel('times[s]')
