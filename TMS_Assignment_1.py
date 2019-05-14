@@ -37,7 +37,7 @@ poissons_ratio=0.33
 burgers_vector=0.256e-9 #m
 drag_coefficient=1e-4 #Pa-s
 total_time=10e-9 #s
-number_steps=100
+number_steps=50
 delta_t=total_time/number_steps
 print('Time_step=',delta_t)
 
@@ -48,6 +48,8 @@ initial_position=length*np.array([0.1,0.13,0.16,0.3]) #x-co-ordinates
 final_position=np.array([])
 tau=np.array([])
 final_position=initial_position #for loop initiating purpose
+positions=np.array([initial_position])
+times=np.array([0])
 
 
 #Loop to calculate final positions with time
@@ -60,7 +62,46 @@ for i in range(number_steps):
     print('Tau value in Final position loop:',tau)
     #x1_new=x1_old+delta_t*tau
     final_position=final_position+delta_t*tau
+    positions=np.append(positions,[final_position],axis=0)
+    times=np.append(times,[(i+1)*delta_t],axis=0)
+    print('positions inside positions loop:',positions)
     print('Final_positions in Final position loop:',final_position)
+    print('Time_steps in Final position loop',times)
+print(positions[3,0])
+
+# To plot values of dislocation movement with time
+plt.plot(positions,times)
+plt.xlabel('positions [m]')
+plt.ylabel('times[s]')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #Test2
