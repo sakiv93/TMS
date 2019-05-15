@@ -6,7 +6,7 @@ import math
 
 #To find Internal stress around dislocation due to surrounding disloactions 
 def get_internal_stress(x_coords,shear_modulus,poissons_ratio,burgers_vector):
-    print('Input positions in stress loop:',x_coords)
+    ##print('Input positions in stress loop:',x_coords)
     d=shear_modulus*burgers_vector/(2*np.pi*(1-poissons_ratio))
     stress=np.array([])
     swap=0
@@ -27,7 +27,7 @@ def get_internal_stress(x_coords,shear_modulus,poissons_ratio,burgers_vector):
 def velocity(burgers_vector,drag_coefficient,shear_stress):
     velocitys=np.array([])
     for i in range(len(shear_stress)):
-        velocity =(burgers_vector/drag_coefficient)*(shear_stress[i]+14150000)
+        velocity =(burgers_vector/drag_coefficient)*(shear_stress[i]-25000000)
         velocitys=np.append(velocitys,velocity)
     return velocitys
 
@@ -47,10 +47,12 @@ length= 2e-6 #m
 n_dislocations=4
 initial_position=length*np.array([0.1,0.13,0.16,0.3]) #x-co-ordinates
 final_position=np.array([])
-tau=np.array([])
+vel=np.array([])
 final_position=initial_position #for loop initiating purpose
 positions=np.array([initial_position])
 times=np.array([0])
+vels=np.zeros([1,len(initial_position)])
+#print('vels:',vels)
 
 
 #Loop to calculate final positions with time
@@ -60,10 +62,15 @@ for i in range(number_steps):
     #Here np.copy is used for call by value purpose in order to prevent function modifying outside variable
     #In internl stress calculation function my initial positions get swapped according to requirement.
     ##print('shear_stress_in_loop:',shear_stress)
-    tau=velocity(burgers_vector,drag_coefficient,shear_stress)
-    ##print('Tau value in Final position loop:',tau)
-    #x1_new=x1_old+delta_t*tau
-    final_position=final_position+delta_t*tau
+    vel=velocity(burgers_vector,drag_coefficient,shear_stress)
+    vels=np.append(vels,[vel],axis=0)
+    ##print('Velocity values in Final position loop',vels)
+    ##print('Tau value in Final position loop:',vel)
+    #x1_new=x1_old+delta_t*vel
+    final_position=final_position+delta_t*vel
+    for j in range(len(initial_position)):
+        if final_position[j]<=0:
+            final_position[j]=0
     positions=np.append(positions,[final_position],axis=0)
     times=np.append(times,[(i+1)*delta_t],axis=0)
     #[round(elem,8) for elem in get_internal_stress(np.array([0,2,3.5,4]),20.,0.3,0.1)]
@@ -73,12 +80,13 @@ for i in range(number_steps):
 print(positions[-1,0])
 
 # To plot values of dislocation movement with time
-positions_plot=[round(elem,4) for elem in positions]
-print('Rounded to 4 digits,positions:',positions)
-plt.plot(positions,times)
+positions_plot=np.around(positions,11)
+##print('Rounded to 4 digits,positions:',positions_plot)
+##plt.plot(positions_plot,times)
 plt.xlabel('positions [m]')
 plt.ylabel('times[s]')
 #plt.xlim(-2e-6,2e-6)
+plt.plot(vels,times)
 plt.show()
 
 
@@ -126,6 +134,6 @@ plt.show()
 #print(Test4)
 
 #Test5 new positions
-#print('velocity:',tau)
+#print('velocity:',vel)
 #print('Final_positions',final_position)
 #print(i)
